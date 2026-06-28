@@ -117,7 +117,7 @@ begin
 end;
 $$;
 
-call add_product_to_order(1, 1, 2);
+    call add_product_to_order(1, 1, 2);
 
 --------------------------------------------------------------
 --------------------------- Task 4 ---------------------------
@@ -146,3 +146,25 @@ create or replace trigger trg_recalculate_order_total
 after insert or update or delete on order_items
 for each row
 execute function recalculate_order_total();
+
+--------------------------------------------------------------
+--------------------------- Task 5 ---------------------------
+--------------------------------------------------------------
+
+create or replace function log_order_created()
+returns trigger
+language plpgsql
+as $$
+begin
+    insert into order_log (order_id, customer_id, action, log_date)
+    values (new.order_id, new.customer_id, 'ORDER_CREATED', now());
+
+    return null;
+end;
+$$;
+
+create or replace trigger trg_log_order_created
+after insert
+on orders
+for each row
+execute function log_order_created();
